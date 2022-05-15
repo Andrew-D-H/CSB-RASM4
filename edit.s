@@ -36,6 +36,7 @@ edit:
 	LDR X3, =szTemp		//Load szTemp 
 	MOV X6, #0			//Load #0
 	STR X6, [X1]		//Store that into X6
+	STR X6, [X1, #8]
 	STR X3, [SP, #-16]!	//Store X3
 	STR X1, [SP, #-16]! //Store X1
 	
