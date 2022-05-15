@@ -324,6 +324,7 @@ edit:
 	LDR X3, =szTemp
 	MOV X6, #0
 	STR X6, [X1]
+	STR X6, [X1, #8]
 	STR X3, [SP, #-16]!
 	STR X1, [SP, #-16]!
 	
