@@ -36,6 +36,8 @@ szSubOpt:	.asciz	"Please select a sub-option: "
 
 // OTHER STRINGS
 szNL:		.asciz	"\n"
+szB1:		.asciz	"["
+szB2:		.asciz	"] "
 szGetOpt:	.asciz	"Please select an option: "
 szValidIn:	.asciz	"Please select a valid option: "
 szEnterStr:	.asciz	"Enter a string to search for: "
@@ -47,18 +49,27 @@ szWriteToOut:	.asciz	"Enter what you want to write to output.txt: "
 szOutFile:	.asciz "./output.txt"
 szInFile:	.asciz	"./input.txt"
 
-
+szTemp9: .asciz "0A"
 
 
 szTemp: .skip	21
 szTemp1: .skip	21
 szTemp2: .skip	21
 tempInt: .quad 0
+tempInt2: .quad 0
+tempInt3: .quad 0
+tempInt4: .quad 0
+tempInt5: .quad 0
+tempInt6: .quad 0
+tempInt7: .quad 0
+
 
 
 str8:	.asciz "\n\n\n"
 str9:	.asciz "Enter Index to Delete: "
+str14:	.asciz "Enter Index to Delete: "
 str10:	.asciz "Enter Index to Edit: "
+str15:	.asciz "Enter Index to Edit: "
 str11:	.asciz "Enter String: "
 str12:	.asciz "Matching Strings: \n"
 szWarn:	.asciz "Node does not exist.\n\n"
@@ -98,15 +109,28 @@ _start:
 	nodeNumberTop:
 	CMP X19,#0
 	BEQ nodeNumberBot
+	
+	
 	LDR	X0, [X19]
+	MOV X5, X0
+    LDR X5, [X5]
+    CMP X5, #0
+    BEQ NodeCountSkip
 	
 	ADD X6, X6, #1
-	
+	NodeCountSkip:
 	
 	ADD	X19,X19,#8
 	LDR X19,[X19]
 	B	nodeNumberTop
 	nodeNumberBot:
+	
+	break38:
+	MOV X7, #0
+	MOV X9, #16
+	MUL X7, X6, X9
+	STR X7, [SP, #-16]!
+	STR X6, [SP, #-16]!
 
 	ldr	X0,	=szNL  //load new line
 	bl	putstring  //call putsring
@@ -118,9 +142,15 @@ _start:
 	bl	putstring   //call putstring
 	ldr	X0,	=szMemCon  //load szMemCon
 	bl	putstring   //load szTE
+	LDR  X6, [SP], #16
+	LDR  X7, [SP], #16
+	LDR X1, =tempInt
+	MOV X0, X7
+	STR X6, [SP, #-16]!
+	bl int64asc
 	
-	
-	
+	LDR X0, =tempInt
+	bl	putstring
 	
 	
 	// print num bytes here
@@ -130,6 +160,7 @@ _start:
 	bl	putstring //call putstring
 	
 	break27:
+	LDR  X6, [SP], #16
 	LDR X1, =tempInt
 	MOV X0, X6
 	bl int64asc
@@ -273,9 +304,9 @@ B topLoop
 	
 	
 	
-	
-Opt3:
 ////////////////////////////////////////////////////////////////////
+Opt3:
+	break33:
 	LDR X0, =str9		//load szStr
 	BL putstring
 	
@@ -306,7 +337,7 @@ b	_start
 	
 ////////////////////////////////////////////////////////////////////
 Opt4:
-	
+	break32:
 
 	LDR X0, =str10		//load szStr
 	BL putstring
@@ -405,6 +436,22 @@ getOption:
 	b	getIn1
 
 exit:
+	//LDR	X19, =headPtr
+	//LDR	X19, [X19]
+	
+	//nodeClearTop:
+	//CMP X19,#0
+	//BEQ nodeClearBot
+	//LDR	X0, [X19]
+	
+	//Bl free
+	
+	
+	//ADD	X19,X19,#8
+	//LDR X19,[X19]
+	//B	nodeClearTop
+	//nodeClearBot:
+
 						// setup parameters to end the program
 						// and then call Linux to do it
 	mov X0, #0				// use 0 as return code
@@ -542,19 +589,42 @@ traverse:
 	STR X19, [SP, #-16]!
 	STR X30, [SP, #-16]!
 	
+	MOV X23, #1
 	
 	LDR	X19, =headPtr
 	LDR	X19, [X19]
+	MOV X6, #1
 	
 travTop:
 	CMP X19,#0
 	BEQ travBot
-	LDR	X0, [X19]
 	
+	
+	CMP X6, #1
+	BNE notEqualSkip
+	LDR X0, =szB1
+	BL putstring
+	LDR X1, =tempInt
+	MOV X0, X23
+	BL int64asc
+	LDR X0, =tempInt
+	BL putstring
+	LDR X0, =szB2
+	BL putstring
+	notEqualSkip:
+	
+	break37:
+	MOV X6, #0
+	LDR	X0, [X19]
+	MOV X5, X0
+	LDR X5, [X5]
+	CMP X5, #0
+	BEQ traverseSkip
+	MOV X6, #1
 	BL putstring
 	
-	break5:
-	
+	ADD X23, X23, #1
+	traverseSkipBack:
 	ADD	X19,X19,#8
 	LDR X19,[X19]
 	B	travTop
@@ -564,6 +634,9 @@ travBot:
 	LDR  X19, [SP], #16
 	RET
 	
+traverseSkip:
+break36:
+b traverseSkipBack
 	
 	
 search:
@@ -597,7 +670,7 @@ search:
 	LDR	X19, [X19]
 	
 	
-	
+	MOV X23, #0
 	searchTop:
 	CMP X19,#0
 	BEQ searchBot
@@ -622,7 +695,7 @@ search:
 	
 	LDR X1, =szTemp
 	LDR X3, =szTemp2
-	
+	ADD X23, X23, #1
 	BL compare
 	
 	
@@ -641,10 +714,13 @@ search:
 	STR X30, [SP, #-16]!
 	STR X3, [SP, #-16]!
 	STR X1, [SP, #-16]!
+	STR X23, [SP, #-16]!
 	
 	LDR X0,=szTemp
 	BL stringLength
 	
+
+	LDR  X23, [SP], #16
 	LDR  X1, [SP], #16
 	LDR  X3, [SP], #16
 	
@@ -669,13 +745,20 @@ search:
 	
 	b compareTop				//Branch to top
 	
-	comparebot1:			//Bottom of first function
+	comparebot1:
+	LDR X0, =szB1
+	BL putstring
+	LDR X1, =tempInt
+	MOV X0, X23
+	break31:
+	BL int64asc
+	LDR X0, =tempInt
+	BL putstring
+	LDR X0, =szB2
+	BL putstring
 	
 	MOV X0, X15
 	BL putstring
-	
-	LDR X0, =cLF
-	BL putch
 	
 	B compareEnd
 	
@@ -771,7 +854,28 @@ edit:
 	MOV X1,#1024			//Specify string length
 	BL getstring		//Call getstring
 	
-	break23:
+	break34:
+	
+	LDR X0, =szTemp
+	BL stringLength
+	LDR X3, =szTemp
+	
+	SUB X2, X2, #1
+	
+	topEnterLoop:				//Top of the first function
+	LDRB W4, [X3],#1
+	CMP X2, #0			//Compare X2 to 0
+	BEQ botEnterLoop			//if X2 = 0 branch
+	SUB X2, X2, #1		//Decrement X2
+	b topEnterLoop				//Branch to top
+	
+	botEnterLoop:			//Bottom of first function
+	break35:
+	
+	MOV W4, 0xA
+	STRB W4, [X3]
+	LDR X0, =szTemp
+	
 
 	LDR X0, =szNull
 	BL putstring
@@ -839,6 +943,25 @@ addNode:
 	LDR X0,=szTemp		//Specify where to store
 	MOV X1,#32			//Specify string length
 	BL getstring		//Call getstring
+	
+	LDR X0, =szTemp
+	BL stringLength
+	LDR X3, =szTemp
+	
+	SUB X2, X2, #1
+	
+	topaddNodeLoop:				//Top of the first function
+	LDRB W4, [X3],#1
+	CMP X2, #0			//Compare X2 to 0
+	BEQ botaddNodeLoop			//if X2 = 0 branch
+	SUB X2, X2, #1		//Decrement X2
+	b topaddNodeLoop				//Branch to top
+	
+	botaddNodeLoop:			//Bottom of first function
+	
+	
+	MOV W4, 0xA
+	STRB W4, [X3]
 
 	LDR X0, =szNull
 	BL putstring
