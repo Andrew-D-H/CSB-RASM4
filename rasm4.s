@@ -6,6 +6,7 @@
 .equ C_W,0101	
 .equ AT_FDCWD,-100
 .equ RW_______,0600
+.equ RW_RW____,0644
 
 	.data
 
@@ -52,6 +53,7 @@ szInFile:	.asciz	"./input.txt"
 szTemp: .skip	21
 szTemp1: .skip	21
 szTemp2: .skip	21
+tempInt: .quad 0
 
 
 str8:	.asciz "\n\n\n"
@@ -88,6 +90,23 @@ szInFileBuf:	.skip	90000
 	.text
 
 _start:
+	LDR	X19, =headPtr
+	LDR	X19, [X19]
+	
+	MOV X6, #0
+	break26:
+	nodeNumberTop:
+	CMP X19,#0
+	BEQ nodeNumberBot
+	LDR	X0, [X19]
+	
+	ADD X6, X6, #1
+	
+	
+	ADD	X19,X19,#8
+	LDR X19,[X19]
+	B	nodeNumberTop
+	nodeNumberBot:
 
 	ldr	X0,	=szNL  //load new line
 	bl	putstring  //call putsring
@@ -100,11 +119,25 @@ _start:
 	ldr	X0,	=szMemCon  //load szMemCon
 	bl	putstring   //load szTE
 	
+	
+	
+	
+	
 	// print num bytes here
 	ldr	X0,	=szBytes //load szBytes
 	bl	putstring //call putstring
 	ldr	X0,	=szNumNodes //loadNumNodes
 	bl	putstring //call putstring
+	
+	break27:
+	LDR X1, =tempInt
+	MOV X0, X6
+	bl int64asc
+	
+	LDR X0, =tempInt
+	bl	putstring
+	
+	
 	ldr	X0,	=szNL  //load szNL
 	bl	putstring //call putstring
 	ldr	X0,	=szNL //load szNL
@@ -181,7 +214,7 @@ getIn2:
 
 Opt2a: 	// CODE FOR OPTION 2.a GOES HERE
 	
-	
+	bl addNode
 
 	b	_start	
 
@@ -291,12 +324,6 @@ Opt4:
 	
 	BL edit
 	
-ldr	X0,	=szBufferMsg  //load new line
-bl	putstring  //call putstring
-	
-ldr	X0,	=szBuffer	// load kbBuf
-mov	X2,	#2		// get string length
-bl getstring
 b	_start	
 ////////////////////////////////////////////////////////////////////
 	
@@ -314,7 +341,46 @@ mov	X2,	#2		// get string length
 bl getstring
 b	_start	
 
+
+//////////////////////////////////////////////////////////////////////
+Opt6:
+
+	MOV X0, #AT_FDCWD	//Open AT
+	MOV X8, #56			//Move 56 into X8
+	LDR X1, =szOutFile	//Load File name
+	MOV X2, #C_W	//Open CREATEWO
+	MOV X3, #RW_RW____	//Mode
+	SVC 0				//Service call
 	
+	LDR	X19, =headPtr
+	LDR	X19, [X19]
+	break28:
+writeTop:
+	CMP X19,#0
+	BEQ writeBot
+	LDR	X6, [X19]
+	
+	MOV X8, #64			//Write
+	MOV X1, X6			//Load the message
+	break29:
+	MOV X2, #32			//Move 15 into X2
+	SVC 0				//Service Call
+	
+	
+	ADD	X19,X19,#8
+	LDR X19,[X19]
+	B	writeTop
+	
+writeBot:
+	
+	
+	
+	
+	MOV X8, #58			//Move 57 into X8
+	SVC 0				//Service call
+	
+	
+b	_start	
 	
 
 
@@ -325,12 +391,12 @@ getOption:
 	b.eq	Opt2
 	cmp	X0,	#0x33		// option 3
 	b.eq	Opt3
-	//cmp	X0,	#0x34		// option 4
-	//b.eq	Opt4
+	cmp	X0,	#0x34		// option 4
+	b.eq	Opt4
 	cmp	X0,	#0x35		// option 5
 	b.eq	Opt5
-	//cmp	X0,	#0x36		// option 6
-	//b.eq	Opt6
+	cmp	X0,	#0x36		// option 6
+	b.eq	Opt6
 	cmp	X0,	#0x37	// option 7
 	b.eq	exit			// if 7 just exit
 
@@ -686,6 +752,122 @@ delete:
 	BL free
 	
 	break4:
+	
+	LDR  X30, [SP], #16
+	RET
+//////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////
+edit:
+	
+
+	STR X30, [SP, #-16]!
+	LDR X0, =str11
+	BL putstring
+	
+	
+	
+	LDR X0,=szTemp		//Specify where to store
+	MOV X1,#1024			//Specify string length
+	BL getstring		//Call getstring
+	
+	break23:
+
+	LDR X0, =szNull
+	BL putstring
+	
+	//LDR X0,=szTemp1		//Specify where to store
+	//MOV X1,#21			//Specify string length
+	//BL getstring		//Call getstring
+	
+	//LDR X0,=szTemp1
+	
+	//BL ascint64
+	MOV X3, X6
+	
+	
+	break21:
+	
+	LDR	X19, =headPtr
+	LDR	X19, [X19]
+	
+	
+	neTop:
+	CMP X3,#0
+	BEQ neBot
+	LDR	X1, [X19]
+	
+	SUB X3, X3, #1
+	
+	
+	ADD	X19,X19,#8
+	LDR X19,[X19]
+	B	neTop
+	neBot:
+	
+	break12:
+	
+	
+	
+	LDR X3, =szTemp
+	MOV X6, #0
+	STR X6, [X1]
+	STR X6, [X1, #8]
+	STR X6, [X1, #16]
+	STR X6, [X1, #24]
+	STR X3, [SP, #-16]!
+	STR X1, [SP, #-16]!
+	
+	MOV X0, X3
+	BL stringLength
+	
+	
+	LDR  X1, [SP], #16
+	LDR  X3, [SP], #16
+	BL str_Copy
+	
+	LDR  X30, [SP], #16
+	RET
+//////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////
+addNode:
+	STR X30, [SP, #-16]!
+	LDR X0, =str11
+	BL putstring
+	
+	LDR X0,=szTemp		//Specify where to store
+	MOV X1,#32			//Specify string length
+	BL getstring		//Call getstring
+
+	LDR X0, =szNull
+	BL putstring
+
+	LDR X0, =szTemp		//load szStr
+	BL stringLength		//Branch
+	MOV X0, X2			//Move 15 into X0
+	BL malloc			//Branch and link to Malloc
+	
+	str X0, [SP, #-16]!
+	
+	
+	LDR X1, =data;		//Load data into X1
+	STR X0, [X1]		// Load the address
+	
+	
+	
+	LDR X0, =szTemp		//load szStr
+	BL stringLength		//Branch
+	
+	LDR  X0, [SP], #16
+	
+	LDR X1, =data
+	LDR X3,=szTemp		//Load the first string into X3
+	LDR X1,[X1]			//Save the address of X1
+	
+	BL str_Copy			//Branch
+	BL createNode		//Branch
+	BL insert			//Branch
 	
 	LDR  X30, [SP], #16
 	RET
