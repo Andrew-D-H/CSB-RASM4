@@ -1,3 +1,7 @@
+//Author:	Dawson Graf & Andrew Hua
+//Lab:		RASM 3
+//Purpose: 	Text Editor
+//Modified:	5/16/2022	
 //FILE MODES
 .equ R,00
 .equ W,01
@@ -47,7 +51,7 @@ szWriteToOut:	.asciz	"Enter what you want to write to output.txt: "
 
 // File Locations 
 szOutFile:	.asciz "./output.txt"
-szInFile:	.asciz	"./input.txt"
+szInFile:	.asciz	"./Input.txt"
 
 szTemp9: .asciz "0A"
 
@@ -99,30 +103,29 @@ szInFileBuf:	.skip	90000
 
 	.global	_start
 	.text
-
+///////////////////////////////////////////////////////////////////////
 _start:
-	LDR	X19, =headPtr
-	LDR	X19, [X19]
+	LDR	X19, =headPtr	//Load Head pointer
+	LDR	X19, [X19]		//Load value at address
 	
-	MOV X6, #0
-	break26:
-	nodeNumberTop:
-	CMP X19,#0
-	BEQ nodeNumberBot
+	MOV X6, #0			//Mov #0
+	nodeNumberTop:		//nodeNumberTop
+	CMP X19,#0			//Mov #0
+	BEQ nodeNumberBot	//nodeNumberBot
 	
 	
-	LDR	X0, [X19]
-	MOV X5, X0
-    LDR X5, [X5]
-    CMP X5, #0
-    BEQ NodeCountSkip
+	LDR	X0, [X19]		//Load Value
+	MOV X5, X0			//Mov X0
+    LDR X5, [X5]		//Load Value
+    CMP X5, #0			//Compare to zero
+    BEQ NodeCountSkip	//Branch to Node Count skip
 	
-	ADD X6, X6, #1
-	NodeCountSkip:
+	ADD X6, X6, #1		//Increment
+	NodeCountSkip:		//Node Count skip
 	
-	ADD	X19,X19,#8
-	LDR X19,[X19]
-	B	nodeNumberTop
+	ADD	X19,X19,#8		//Add 8 to X19
+	LDR X19,[X19]		//Load value
+	B	nodeNumberTop	//
 	nodeNumberBot:
 	
 	break38:
@@ -375,7 +378,7 @@ b	_start
 
 //////////////////////////////////////////////////////////////////////
 Opt6:
-
+	B _start
 	MOV X0, #AT_FDCWD	//Open AT
 	MOV X8, #56			//Move 56 into X8
 	LDR X1, =szOutFile	//Load File name
