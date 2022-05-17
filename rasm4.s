@@ -50,7 +50,7 @@ szStrToReplace:	.asciz	"Enter the string to replace: "
 szWriteToOut:	.asciz	"Enter what you want to write to output.txt: "
 
 // File Locations 
-szOutFile:	.asciz "./output.txt"
+szOutFile:	.asciz "./Output.txt"
 szInFile:	.asciz	"./Input.txt"
 
 szTemp9: .asciz "0A"
@@ -125,15 +125,15 @@ _start:
 	
 	ADD	X19,X19,#8		//Add 8 to X19
 	LDR X19,[X19]		//Load value
-	B	nodeNumberTop	//
-	nodeNumberBot:
+	B	nodeNumberTop	//nodeNumberTop
+	nodeNumberBot:		//node NumberBot
 	
-	break38:
-	MOV X7, #0
-	MOV X9, #16
-	MUL X7, X6, X9
-	STR X7, [SP, #-16]!
-	STR X6, [SP, #-16]!
+	break38:			//break for debug, there was a lot.
+	MOV X7, #0			//Mov X7
+	MOV X9, #16			//Mov X9
+	MUL X7, X6, X9		//Multiply
+	STR X7, [SP, #-16]!	//Store X7
+	STR X6, [SP, #-16]! //Store X6
 
 	ldr	X0,	=szNL  //load new line
 	bl	putstring  //call putsring
@@ -141,19 +141,19 @@ _start:
 	bl	putstring  //call putstring
 
 	// Below prints the menu
-	ldr	X0,	=szTE   //load szTE
-	bl	putstring   //call putstring
+	ldr	X0,	=szTE   	//load szTE
+	bl	putstring   	//call putstring
 	ldr	X0,	=szMemCon  //load szMemCon
-	bl	putstring   //load szTE
-	LDR  X6, [SP], #16
-	LDR  X7, [SP], #16
-	LDR X1, =tempInt
-	MOV X0, X7
-	STR X6, [SP, #-16]!
-	bl int64asc
+	bl	putstring   	//load szTE
+	LDR  X6, [SP], #16	//Load X6
+	LDR  X7, [SP], #16	//Load X7
+	LDR X1, =tempInt	//Load X1
+	MOV X0, X7			//Mov X7
+	STR X6, [SP, #-16]! //Store X6
+	bl int64asc			//BL int64asc
 	
-	LDR X0, =tempInt
-	bl	putstring
+	LDR X0, =tempInt 	//Ldr X0
+	bl	putstring		//
 	
 	
 	// print num bytes here
@@ -163,14 +163,14 @@ _start:
 	bl	putstring //call putstring
 	
 	break27:
-	LDR  X6, [SP], #16
-	LDR X1, =tempInt
-	MOV X0, X6
-	bl int64asc
+	LDR  X6, [SP], #16	//Load X6
+	LDR X1, =tempInt	//Load X1
+	MOV X0, X6			//Mov X0
+	bl int64asc			//Branch
 	
-	LDR X0, =tempInt
-	bl	putstring
-	
+	LDR X0, =tempInt	//Load
+	bl	putstring		//putstring
+////////////////////////////////////////////////////////////////////////
 	
 	ldr	X0,	=szNL  //load szNL
 	bl	putstring //call putstring
@@ -200,42 +200,48 @@ _start:
 	bl	putstring	 //call putstring 
 
 
-
+///////////////////////////////////////////////////////////////////////
 getIn1:
 	ldr	X0,	=kbBuf		// load kbBuf
-	mov	X2,	#2		// get string length
-	bl getstring
+	mov	X2,	#2			// get string length
+	bl getstring		//getstring
 
 	// Checking what option was selected
 	LDR X0, =kbBuf		//load keyboard buffer
 	LDRB W0, [X0]
 	bl	getOption		// jump to check what option was selected
+///////////////////////////////////////////////////////////////////////
 
+///////////////////////////////////////////////////////////////////////
 Opt1:	// CODE FOR OPTION 1 GOES HERE
 
-	BL traverse
+	BL traverse		//Bl traverse
 	
 	ldr	X0,	=szBufferMsg  //load new line
-	bl	putstring  //call putstring
+	bl	putstring  		  //call putstring
 	
 	ldr	X0,	=szBuffer	// load kbBuf
-	mov	X2,	#2		// get string length
-	bl getstring
+	mov	X2,	#2			// get string length
+	bl getstring		//getstring
 	b	_start	
+///////////////////////////////////////////////////////////////////////
 
+///////////////////////////////////////////////////////////////////////
 Opt2:	// CODE FOR OPTION 2 GOES HERE
 
 	ldr	X0,	=szSubOpt	// option 2 has 2 sub options 2.a and 2.b
-	bl	putstring
-	
+	bl	putstring		//Putstring
+///////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////
 getIn2:
 	ldr	X0,	=kbBuf		// arg for getstring
-	mov	X2,	#2		// only accepting 2 characters for selecting the suboption
+	mov	X2,	#2			// only accepting 2 characters for selecting the suboption
 	bl	getstring		// see what suboption was selected
 	
 	
 	LDR X0, =kbBuf		//load keyboard buffer
-	LDRB W0, [X0]	// dereffernce the first byte stored in kbbuf 
+	LDRB W0, [X0]		// dereffernce the first byte stored in kbbuf 
 
 	cmp	X0,	#0x61		// compare to a
 	b.eq	Opt2a		//go to 2a
@@ -243,15 +249,19 @@ getIn2:
 	b.eq	Opt2b       // go to 2b
 	
 	ldr	X0,	=szValidIn	// if not a or b get something else
-	bl	putstring  //print string
-	b	getIn2
+	bl	putstring  		//print string
+	b	getIn2			//Getin2
+///////////////////////////////////////////////////////////////////////
 
+///////////////////////////////////////////////////////////////////////
 Opt2a: 	// CODE FOR OPTION 2.a GOES HERE
 	
-	bl addNode
+	bl addNode			//addNode
 
-	b	_start	
+	b	_start			//start
+///////////////////////////////////////////////////////////////////////
 
+///////////////////////////////////////////////////////////////////////
 Opt2b:	// CODE FOR OPTION 2.b GOES HERE
 
 	MOV X0, #AT_FDCWD	//Open AT
@@ -262,30 +272,30 @@ Opt2b:	// CODE FOR OPTION 2.b GOES HERE
 	MOV X3, #RW_______	//Mode
 	SVC 0				//Service call
 	
-	LDR X4, =iFD
-	STR X0,[X4]
+	LDR X4, =iFD		//Load X4
+	STR X0,[X4]			//Str X0
 	
 topLoop:
-	LDR X1, =fileBuf
+	LDR X1, =fileBuf	//LDR filebuf
 	
 	break18:
 	
-	BL getLine
-	CMP X0, #0
-	BEQ last
+	BL getLine			//getLine
+	CMP X0, #0			//cmp X0
+	BEQ last			//BEQ last
 	
 	break17:
 	
-	LDR X0, =fileBuf		//load szStr
+	LDR X0, =fileBuf	//load szStr
 	BL stringLength		//Branch
 	MOV X0, X2			//Move 15 into X0
-	STR X2, [SP, #-16]!
+	STR X2, [SP, #-16]! //Store X2
 	BL malloc			//Branch and link to Malloc
 	
 	LDR X1, =data;		//Load data into X1
 	STR X0, [X1]		// Load the address
 	
-	LDR  X2, [SP], #16
+	LDR  X2, [SP], #16	//Load X2
 	LDR X3,=fileBuf		//Load the first string into X3
 	LDR X1,[X1]			//Save the address of X1
 	
@@ -293,48 +303,45 @@ topLoop:
 	BL createNode		//Branch
 	BL insert			//Branch
 	
-	LDR X4, =iFD
-	LDR X0,[X4]
+	LDR X4, =iFD		//Load X4
+	LDR X0,[X4]			//Load X0
 
-B topLoop
+B topLoop				//topLoop
 	
-	last:
+	last:				//Last
 	MOV X8, #58			//Move 57 into X8
 	SVC 0				//Service call
 	
 
-	b	_start	
-	
+	b	_start			//Start
+///////////////////////////////////////////////////////////////////////	
 	
 	
 ////////////////////////////////////////////////////////////////////
 Opt3:
 	break33:
 	LDR X0, =str9		//load szStr
-	BL putstring
+	BL putstring		//Putstring
 	
 	break24:
 	
 	LDR X0,=szTemp		//Specify where to store
 	MOV X1,#21			//Specify string length
 	BL getstring		//Call getstring
-	
 	break8:
-	LDR X0,=szTemp
+	LDR X0,=szTemp		//LDR szTemp
 	
-	BL ascint64
-	MOV X3, X0
-
-	
-	BL delete
+	BL ascint64			//Branch
+	MOV X3, X0			//Mov X3
+	BL delete			//Delete
 	
 ldr	X0,	=szBufferMsg  //load new line
-bl	putstring  //call putstring
+bl	putstring  		  //call putstring
 	
 ldr	X0,	=szBuffer	// load kbBuf
-mov	X2,	#2		// get string length
-bl getstring
-b	_start	
+mov	X2,	#2			// get string length
+bl getstring		//Getstring
+b	_start			//start
 ////////////////////////////////////////////////////////////////////
 	
 	
@@ -350,35 +357,35 @@ Opt4:
 	MOV X1,#21			//Specify string length
 	BL getstring		//Call getstring
 	
-	LDR X0,=szTemp
+	LDR X0,=szTemp		//szTemp
 	
-	BL ascint64
-	MOV X6, X0
+	BL ascint64			//ascint
+	MOV X6, X0			//mov X6
 	
 	
-	BL edit
+	BL edit				//BL edit
 	
-b	_start	
+b	_start				//start
 ////////////////////////////////////////////////////////////////////
 	
 	
 //////////////////////////////////////////////////////////////////////
 Opt5:
 	
-bl search
+bl search			//search
 
 ldr	X0,	=szBufferMsg  //load new line
-bl	putstring  //call putstring
+bl	putstring  		  //call putstring
 	
 ldr	X0,	=szBuffer	// load kbBuf
-mov	X2,	#2		// get string length
-bl getstring
-b	_start	
-
+mov	X2,	#2			// get string length
+bl getstring		//getstring
+b	_start			//start
+///////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////
 Opt6:
-	B _start
+	b	_start			
 	MOV X0, #AT_FDCWD	//Open AT
 	MOV X8, #56			//Move 56 into X8
 	LDR X1, =szOutFile	//Load File name
@@ -386,13 +393,13 @@ Opt6:
 	MOV X3, #RW_RW____	//Mode
 	SVC 0				//Service call
 	
-	LDR	X19, =headPtr
-	LDR	X19, [X19]
+	LDR	X19, =headPtr	//Load headPtr
+	LDR	X19, [X19]		//Load the value
 	break28:
 writeTop:
-	CMP X19,#0
-	BEQ writeBot
-	LDR	X6, [X19]
+	CMP X19,#0			//Compare X19
+	BEQ writeBot		//writeBot
+	LDR	X6, [X19]		//LDR X6
 	
 	MOV X8, #64			//Write
 	MOV X1, X6			//Load the message
@@ -401,23 +408,20 @@ writeTop:
 	SVC 0				//Service Call
 	
 	
-	ADD	X19,X19,#8
-	LDR X19,[X19]
-	B	writeTop
+	ADD	X19,X19,#8		//increment X19
+	LDR X19,[X19]		//Load the value
+	B	writeTop		//write top
 	
-writeBot:
-	
-	
-	
+writeBot:				//writeBot
 	
 	MOV X8, #58			//Move 57 into X8
 	SVC 0				//Service call
 	
 	
-b	_start	
-	
+b	_start				//start
+///////////////////////////////////////////////////////////////////////
 
-
+///////////////////////////////////////////////////////////////////////
 getOption:
 	cmp	X0,	#0x31		// option 1	
 	b.eq	Opt1
@@ -437,42 +441,39 @@ getOption:
 	ldr	X0,	=szValidIn	// antyhing else ... return to getting input
 	bl	putstring
 	b	getIn1
+///////////////////////////////////////////////////////////////////////
+
 
 exit:
-	//LDR	X19, =headPtr
-	//LDR	X19, [X19]
+	LDR	X19, =headPtr
+	LDR	X19, [X19]
 	
-	//nodeClearTop:
-	//CMP X19,#0
-	//BEQ nodeClearBot
-	//LDR	X0, [X19]
+	nodeClearTop:
+	CMP X19,#0
+	BEQ nodeClearBot
+	LDR	X0, [X19]
+	MOV X5, X0
+	LDR X5, [X5]
+	CMP X5, #0
+	BEQ freeSkip
 	
-	//Bl free
+	Bl free
 	
+	freeSkip:
 	
-	//ADD	X19,X19,#8
-	//LDR X19,[X19]
-	//B	nodeClearTop
-	//nodeClearBot:
+	ADD	X19,X19,#8
+	LDR X19,[X19]
+	B	nodeClearTop
+	nodeClearBot:
 
 						// setup parameters to end the program
 						// and then call Linux to do it
 	mov X0, #0				// use 0 as return code
 	mov X8, #93				// service command code 93 terminates this program
 	svc 0					// call Linux to terminate the program
+///////////////////////////////////////////////////////////////////////
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+///////////////////////////////////////////////////////////////////////	
 str_Copy:
 	break11:
 	top1:				//Top of the first function
@@ -486,10 +487,10 @@ str_Copy:
 	bot1:			//Bottom of first function
 	
 	RET
+///////////////////////////////////////////////////////////////////////
 	
 	
-	
-	
+///////////////////////////////////////////////////////////////////////	
 getLine:
 	str X30, [SP, #-16]!	//Push
 	
@@ -567,8 +568,9 @@ insert:
 	
 skip1:
 	RET
+///////////////////////////////////////////////////////////////////////	
 	
-	
+///////////////////////////////////////////////////////////////////////
 	createNode:
 	str X30, [SP, #-16]!
 	
@@ -584,9 +586,9 @@ skip1:
 	MOV X1, #0
 	STR X1, [X0,#8]
 	RET
+///////////////////////////////////////////////////////////////////////
 	
-	
-	
+///////////////////////////////////////////////////////////////////////	
 traverse:
 	break1:
 	STR X19, [SP, #-16]!
@@ -640,8 +642,9 @@ travBot:
 traverseSkip:
 break36:
 b traverseSkipBack
+///////////////////////////////////////////////////////////////////////
 	
-	
+///////////////////////////////////////////////////////////////////////
 search:
 	STR X30, [SP, #-16]!
 	

@@ -1,53 +1,67 @@
-//Delete function. Just requires X3 as a input for the index.
+//Author:	Dawson Graf & Andrew Hua
+//Lab:		RASM 3
+//Purpose: 	Text Editor
+//Modified:	5/16/2022	
 
 ///////////////////////////////////////////////////////////////////////
 delete:
-	STR X30, [SP, #-16]!	//Store X30
-	LDR	X19, =headPtr		//Load headPtr
-	LDR	X19, [X19]			//Load the contents
+	break3:
+	STR X30, [SP, #-16]!
+	LDR	X19, =headPtr
+	LDR	X19, [X19]
 	
-	MOV X6, #0				//Innialize the index count to 0
+	MOV X6, #0
 	
-	nnTop:					//Node number top
-	CMP X19,#0				//Compare X19 to 0
-	BEQ nnBot				//Branch if equal
-	LDR	X0, [X19]			//Load the contents
+	nnTop:
+	CMP X19,#0
+	BEQ nnBot
+	LDR	X0, [X19]
 	
-	ADD X6, X6, #1			//Increment the node count
-	
-	ADD	X19,X19,#8			//Increment headPtr
-	LDR X19,[X19]			//Load the contents
-	B	nnTop				//Branch to nnTop
-	nnBot:					//Node number Bottom
-	
-	CMP X3, X6				//Compare X3 to X6
-	BLS skipCheck			//Branch if less than
-	
-	LDR X0, =szWarn			//Load X0
-	BL putstring			//Branch if putstring
-	LDR  X30, [SP], #16		//Load X30
-	RET						//Return
-	
-	skipCheck:				//Skip Check
-	
-	LDR	X19, =headPtr		//Load headPtr
-	LDR	X19, [X19]			//Load the contents
+	ADD X6, X6, #1
 	
 	
-	nsTop:					//Node select
-	CMP X3,#0				//Compare X3 to 0
-	BEQ nsBot				//Branch To bottom
-	LDR	X0, [X19]			//Load contents
+	ADD	X19,X19,#8
+	LDR X19,[X19]
+	B	nnTop
+	nnBot:
 	
-	SUB X3, X3, #1			//Sub
+	break6:
 	
-	ADD	X19,X19,#8			//Increment
-	LDR X19,[X19]			//Load contents
-	B	nsTop				//Branch to top
-	nsBot:					//Bottom of node select
 	
-	BL free					//Branch to free
+	CMP X3, X6
+	BLS skipCheck
 	
-	LDR  X30, [SP], #16		//Load X30
-	RET						//Return
+	LDR X0, =szWarn
+	BL putstring
+	LDR  X30, [SP], #16
+	RET
+	
+	skipCheck:
+	
+	//SUB X6, X6, X3
+	
+	LDR	X19, =headPtr
+	LDR	X19, [X19]
+	
+	
+	nsTop:
+	CMP X3,#0
+	BEQ nsBot
+	LDR	X0, [X19]
+	
+	SUB X3, X3, #1
+	
+	
+	ADD	X19,X19,#8
+	LDR X19,[X19]
+	B	nsTop
+	nsBot:
+	
+	
+	BL free
+	
+	break4:
+	
+	LDR  X30, [SP], #16
+	RET
 //////////////////////////////////////////////////////////////////////
